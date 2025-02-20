@@ -119,7 +119,7 @@ if page == "HEV-ALF Predictor":
 
             # SHAP explanation
             st.markdown("<h3 style='font-weight: bold;'>Prediction Interpretations</h3>", unsafe_allow_html=True)
-            generate_shap_plot(shap_explainer1, feature_alf, ["INR", "TBIL", "AST", "HDL", "PLT", "NEU", "TT"], "shap_force_plot_alf.png")
+            generate_shap_plot(shap_explainer1, features_alf, ["INR", "TBIL", "AST", "HDL", "PLT", "NEU", "TT"], "shap_force_plot_alf.png")
 
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
@@ -164,7 +164,7 @@ elif page == "HEV-ACLF Predictor":
 
             # SHAP explanation
             st.markdown("<h3 style='font-weight: bold;'>Prediction Interpretations</h3>", unsafe_allow_html=True)
-            generate_shap_plot(shap_explainer2, feature_aclf, ["INR", "TBIL", "Na", "HDL", "URA"], "shap_force_plot_aclf.png")
+            generate_shap_plot(shap_explainer2, features_aclf, ["INR", "TBIL", "Na", "HDL", "URA"], "shap_force_plot_aclf.png")
 
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
