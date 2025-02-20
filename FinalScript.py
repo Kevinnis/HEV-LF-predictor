@@ -69,8 +69,19 @@ def display_results(risk_score, probabilities, risk_threshold, condition_name):
 
 # Function to generate SHAP explanation plot
 def generate_shap_plot(explainer, features, feature_names, output_file):
+    # Ensure features is a 2D array
+    if len(features.shape) == 3:
+        features = features.reshape(features.shape[1], features.shape[2])  # Reshape to 2D
+    elif len(features.shape) == 1:
+        features = np.array([features])  # Convert to 2D
+
+    # Compute SHAP values
     shap_values = explainer(features)
-    features_df = pd.DataFrame([features], columns=feature_names)
+
+    # Create a DataFrame for feature names
+    features_df = pd.DataFrame(features, columns=feature_names)
+
+    # Generate SHAP force plot
     shap.plots.force(shap_values.base_values, shap_values.values[0], features_df, matplotlib=True)
     plt.savefig(output_file, bbox_inches='tight', dpi=1200)
     st.image(output_file)
@@ -100,7 +111,7 @@ if page == "HEV-ALF Predictor":
     TT = (TT - 18.49978) / 3.781903
 
     feature_values_alf = [INR, TBIL, AST, HDL, PLT, NEU, TT]
-    features_alf = np.array([feature_values_alf])
+    features_alf = np.array([feature_values_alf])  # Ensure 2D array
 
     # Predict button for HEV-ALF
     if st.button("Predict HEV-ALF Risk"):
@@ -145,7 +156,7 @@ elif page == "HEV-ACLF Predictor":
     URA = (URA - 279.6014) / 118.7426
 
     feature_values_aclf = [INR, TBIL, Na, HDL, URA]
-    features_aclf = np.array([feature_values_aclf])
+    features_aclf = np.array([feature_values_aclf])  # Ensure 2D array
 
     # Predict button for HEV-ACLF
     if st.button("Predict HEV-ACLF Risk"):
