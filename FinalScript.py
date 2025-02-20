@@ -73,9 +73,7 @@ if page == "HEV-ALF Predictor":
         risk_score = gbm_mod1.predict(features_alf)[0]
     # Get the cumulative hazard 
         hazard_functions = gbm_mod1.predict_cumulative_hazard_function(features_alf)
-
-    # Calculate the alf probabilities at 7, 14, and 28 days
-    alf_probabilities = []
+        alf_probabilities = []
     for hazard in hazard_functions:
         # Get the cumulative hazard at 7, 14, and 28 days
         hazard_7 = hazard(7)  # 7 days
@@ -143,8 +141,6 @@ elif page == "HEV-ACLF Predictor":
         st.markdown(f"<h3 style='text-align: center;'>Risk Score: {risk_score:.2f}</h3>", unsafe_allow_html=True)
     # Get the cumulative hazard 
         hazard_functions = gbm_mod2.predict_cumulative_hazard_function(features_aclf)
-
-    # Calculate the aclf probabilities at 7, 14, and 28 days
         aclf_probabilities = []
     for hazard in hazard_functions:
         # Get the cumulative hazard at 7, 14, and 28 days
