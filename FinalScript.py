@@ -73,7 +73,7 @@ if page == "HEV-ALF Predictor":
         st.markdown("<h3 style='font-weight: bold;'>Prediction Results</h3>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='text-align: center;'>Risk Score: {risk_score:.2f}</h3>", unsafe_allow_html=True)
 
-        if risk_score >= 0.3670939
+        if risk_score >= 0.3670939:
             st.markdown(f"<h3 style='text-align: center; color: red;'>High Risk</h3>", unsafe_allow_html=True)
         else:
             st.markdown(f"<h3 style='text-align: center; color: green;'>Low Risk</h3>", unsafe_allow_html=True)
