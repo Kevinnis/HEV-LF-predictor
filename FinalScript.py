@@ -43,10 +43,10 @@ st.markdown("""
 # HEV-ALF Predictor Page
 if page == "HEV-ALF Predictor":
     st.title("HEV-ALF Risk Predictor")
-    st.caption('This online tool predicts the risk of hepatitis E virus-related acute liver failure (HEV-ALF).')
+    st.caption('This online tool predicts the risk of hepatitis E virus-related acute liver failure (HEV-ALF) among hospitalized patients with acute hepatitis E.')
 
     # Input form for HEV-ALF
-    st.markdown("### Input Variables")
+    st.markdown("### Input the baseline features of the patient")
     INR = st.number_input("International normalized ratio (INR)", min_value=0.0, max_value=100.0, format="%.2f", key="INR_ALF")
     TBIL = st.number_input("Total bilirubin (TBIL) (μmol/L)", min_value=0.0, max_value=10000.0, format="%.2f", key="TBIL_ALF")
     AST = st.number_input("Aspartate aminotransferase (AST) (U/L)", min_value=0.0, max_value=10000.0, format="%.2f", key="AST_ALF")
@@ -70,6 +70,28 @@ if page == "HEV-ALF Predictor":
     # Predict button for HEV-ALF
     if st.button("Predict HEV-ALF Risk"):
         risk_score = gbm_mod1.predict(features_alf)[0]
+    # Get the cumulative hazard 
+        hazard_functions = gbm_mod1.predict_cumulative_hazard_function(features_alf)
+
+    # Calculate the alf probabilities at 7, 14, and 28 days
+    alf_probabilities = []
+    for hazard in hazard_functions:
+        # Get the cumulative hazard at 7, 14, and 28 days
+        hazard_7 = hazard(7)  # 7 days
+        hazard_14 = hazard(14)  # 14 days
+        hazard_28 = hazard(28)  # 28 days
+        
+        # Calculate the probability
+        prob_7 = 1 - np.exp(-hazard_7)
+        prob_14 = 1 - np.exp(-hazard_14)
+        prob_28 = 1 - np.exp(-hazard_28)
+        
+        # Append the probabilities for this sample
+        alf_probabilities.append([prob_7, prob_14, prob_28])
+    
+        # Convert to numpy array for easy handling and rounding
+        alf_probabilities = np.array(alf_probabilities)
+
         st.markdown("<h3 style='font-weight: bold;'>Prediction Results</h3>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='text-align: center;'>Risk Score: {risk_score:.2f}</h3>", unsafe_allow_html=True)
 
@@ -77,6 +99,10 @@ if page == "HEV-ALF Predictor":
             st.markdown(f"<h3 style='text-align: center; color: red;'>High Risk</h3>", unsafe_allow_html=True)
         else:
             st.markdown(f"<h3 style='text-align: center; color: green;'>Low Risk</h3>", unsafe_allow_html=True)
+        
+        st.markdown(f"<h3 style='text-align: center;'>7 day HEV-ALF probability: {alf_probabilities[0][0]*100:.2f}% </h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align: center;'>14 day HEV-ALF probability: {alf_probabilities[0][1]*100:.2f}% </h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align: center;'>28 day HEV-ALF probability: {alf_probabilities[0][2]*100:.2f}% </h3>", unsafe_allow_html=True)
 
         # SHAP explanation
         st.markdown("<h3 style='font-weight: bold;'>Prediction Interpretations</h3>", unsafe_allow_html=True)
@@ -89,14 +115,14 @@ if page == "HEV-ALF Predictor":
 # HEV-ACLF Predictor Page
 elif page == "HEV-ACLF Predictor":
     st.title("HEV-ACLF Risk Predictor")
-    st.caption('This online tool predicts the risk of hepatitis E virus-related acute-on-chronic liver failure (HEV-ACLF).')
+    st.caption('This online tool predicts the risk of hepatitis E virus-related acute-on-chronic liver failure (HEV-ACLF) among hospitalized patients with acute hepatitis E.')
 
     # Input form for HEV-ACLF
-    st.markdown("### Input Variables")
+    st.markdown("### Input the baseline features of the patient")
     INR = st.number_input("International normalized ratio (INR)", min_value=0.0, max_value=100.0, format="%.2f", key="INR_ACLF")
     TBIL = st.number_input("Total bilirubin (TBIL) (μmol/L)", min_value=0.0, max_value=10000.0, format="%.2f", key="TBIL_ACLF")
     Na = st.number_input("Sodium (Na) (mmol/L)", min_value=0.0, max_value=1000.0, format="%.2f", key="Na_ACLF")
-    HDL = st.number_input("High-density lipoprotein-cholesterol (HDL) (mmol/L)", min_value=0.0, max_value=10000.0, format="%.2f", key="HDL_ACLF")
+    HDL = st.number_input("High-density lipoprotein-cholesterol (HDL-C) (mmol/L)", min_value=0.0, max_value=10000.0, format="%.2f", key="HDL_ACLF")
     URA = st.number_input("Uric acid (URA) (μmol/L)", min_value=0.0, max_value=10000.0, format="%.2f", key="URA_ACLF")
 
     # Z-score transformation (standardization) for HEV-ACLF
@@ -114,11 +140,36 @@ elif page == "HEV-ACLF Predictor":
         risk_score = gbm_mod2.predict(features_aclf)[0]
         st.markdown("<h3 style='font-weight: bold;'>Prediction Results</h3>", unsafe_allow_html=True)
         st.markdown(f"<h3 style='text-align: center;'>Risk Score: {risk_score:.2f}</h3>", unsafe_allow_html=True)
+    # Get the cumulative hazard 
+        hazard_functions = gbm_mod2.predict_cumulative_hazard_function(features_aclf)
 
-        if risk_score >= 0.462816:  # Replace with actual threshold
+    # Calculate the aclf probabilities at 7, 14, and 28 days
+        aclf_probabilities = []
+    for hazard in hazard_functions:
+        # Get the cumulative hazard at 7, 14, and 28 days
+        hazard_7 = hazard(7)  # 7 days
+        hazard_14 = hazard(14)  # 14 days
+        hazard_28 = hazard(28)  # 28 days
+        
+        # Calculate the probability
+        prob_7 = 1 - np.exp(-hazard_7)
+        prob_14 = 1 - np.exp(-hazard_14)
+        prob_28 = 1 - np.exp(-hazard_28)
+        
+        # Append the probabilities for this sample
+        aclf_probabilities.append([prob_7, prob_14, prob_28])
+    
+        # Convert to numpy array for easy handling and rounding
+        aclf_probabilities = np.array(aclf_probabilities)
+       
+        if risk_score >= 0.462816: 
             st.markdown(f"<h3 style='text-align: center; color: red;'>High Risk</h3>", unsafe_allow_html=True)
         else:
             st.markdown(f"<h3 style='text-align: center; color: green;'>Low Risk</h3>", unsafe_allow_html=True)
+        
+        st.markdown(f"<h3 style='text-align: center;'>7 day HEV-ACLF probability: {aclf_probabilities[0][0]*100:.2f}% </h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align: center;'>14 day HEV-ACLF probability: {aclf_probabilities[0][1]*100:.2f}% </h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='text-align: center;'>28 day HEV-ACLF probability: {aclf_probabilities[0][2]*100:.2f}% </h3>", unsafe_allow_html=True)
 
         # SHAP explanation
         st.markdown("<h3 style='font-weight: bold;'>Prediction Interpretations</h3>", unsafe_allow_html=True)
@@ -129,5 +180,5 @@ elif page == "HEV-ACLF Predictor":
         st.image("shap_force_plot_aclf.png")
 
 # Footer
-st.caption('Version: 20241223 [This is currently a demo version for review]')
+st.caption('Version: 20250221 [This is currently a demo version for review]')
 st.caption('Contact: wangjienjmu@126.com')
